@@ -1,4 +1,4 @@
-package com.project.pizzaorderapp.view_model
+package com.project.pizzaorderapp.ui.screen.home.view_model
 
 import androidx.lifecycle.ViewModel
 import com.project.pizzaorderapp.data.FakeData
@@ -15,11 +15,7 @@ class HomeViewModel @Inject constructor(
     private val _state = MutableStateFlow(HomeUiState())
     val state = _state.asStateFlow()
 
-    private val selectedIngredientsMap = mutableMapOf<Int, List<Int>>()
-
-
     init {
-//        getIngredient()
         getBread()
     }
 
@@ -35,29 +31,19 @@ class HomeViewModel @Inject constructor(
     }
 
     fun selectedBread(index: Int) {
-        val selectedBread = fakeData.getBread()[index]
         _state.update { currentState ->
+            val selectedIngredients = currentState.selectedIngredientsMap[index] ?: emptyList()
             val updatedIngredients = currentState.ingredientUiState.map { existingIngredient ->
-                existingIngredient.copy(isSelected = false)
+                val isSelected = selectedIngredients.contains(existingIngredient.itemPizzaIcon)
+                existingIngredient.copy(isSelected = isSelected)
             }
             currentState.copy(
-                breads = currentState.breads,
-                ingredientUiState = updatedIngredients,
                 selectedBreadIndex = index,
+                ingredientUiState = updatedIngredients
             )
         }
     }
 
-
-
-//    private fun getIngredient() {
-//        val response = fakeData.getIngredient()
-//        _state.update {
-//            it.copy(
-//                ingredientUiState = response
-//            )
-//        }
-//    }
 
     fun selectedSize(size: TypeSize) {
         when (size) {
@@ -75,41 +61,28 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+
     fun isSelectedIngredient(item: IngredientUiState) {
         _state.update { currentState ->
             val updatedIngredients = currentState.ingredientUiState.map { existingIngredient ->
                 if (existingIngredient == item) {
-                    existingIngredient.copy(
-                        isSelected = !existingIngredient.isSelected,
-                    )
+                    val isSelected = !existingIngredient.isSelected
+                    existingIngredient.copy(isSelected = isSelected)
                 } else {
                     existingIngredient
                 }
             }
-            currentState.copy(ingredientUiState = updatedIngredients)
+            val selectedIngredients = updatedIngredients
+                .filter { it.isSelected }
+                .map { it.itemPizzaIcon }
+
+            val updatedMap = currentState.selectedIngredientsMap.toMutableMap()
+            updatedMap[currentState.selectedBreadIndex] = selectedIngredients
+
+            currentState.copy(
+                ingredientUiState = updatedIngredients,
+                selectedIngredientsMap = updatedMap
+            )
         }
     }
-
-//    fun isSelectedIngredient(item: IngredientUiState) {
-//        _state.update { currentState ->
-//            val updatedIngredients = currentState.ingredientUiState.map { existingIngredient ->
-//                if (existingIngredient == item) {
-//                    val isSelected = !existingIngredient.isSelected
-//                    existingIngredient.copy(isSelected = isSelected)
-//                } else {
-//                    existingIngredient
-//                }
-//            }
-//            val selectedIngredients = updatedIngredients
-//                .filterIndexed { index, ingredient -> ingredient.isSelected }
-//                .map { it.imageIngredients }
-//
-//            selectedIngredientsMap[currentState.selectedBreadIndex] = selectedIngredients
-//
-//            currentState.copy(ingredientUiState = updatedIngredients)
-//        }
-//    }
-
-
-
 }

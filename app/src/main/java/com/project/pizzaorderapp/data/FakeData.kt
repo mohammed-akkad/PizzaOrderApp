@@ -1,7 +1,7 @@
 package com.project.pizzaorderapp.data
 
 import com.project.pizzaorderapp.R
-import com.project.pizzaorderapp.view_model.IngredientUiState
+import com.project.pizzaorderapp.ui.screen.home.view_model.IngredientUiState
 import javax.inject.Inject
 
 class FakeData @Inject constructor() {
